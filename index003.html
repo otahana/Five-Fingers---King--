@@ -1,0 +1,1622 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Five Fingers - King -</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Yomogi&family=Zen+Maru+Gothic:wght@500;700&display=swap');
+
+    :root {
+      --pistachio: #cdd364;
+      --pistachio-dark: #aeb54a;
+      --cream-bg: #f6f7de;
+      --cream-soft: #fcfdf0;
+      --ink: #2c2b26;
+      --ink-light: rgba(44, 43, 38, 0.55);
+      --danger-red: #e63946;
+      --danger-red-glow: rgba(230, 57, 70, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      min-height: 100vh;
+      background-color: var(--pistachio);
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.28) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.28) 1px, transparent 1px);
+      background-size: 28px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Zen Maru Gothic', sans-serif;
+      color: var(--ink);
+      padding: 16px;
+    }
+
+    /* スマホ筐体フレーム */
+    .phone-chassis {
+      width: 100%;
+      max-width: 390px;
+      height: 780px;
+      max-height: 94vh;
+      background: var(--cream-bg);
+      border: 6px solid #1e1e1c;
+      border-radius: 44px;
+      box-shadow:
+        0 24px 48px rgba(30, 30, 28, 0.22),
+        inset 0 0 0 3px #f6f7de;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .phone-notch {
+      width: 132px;
+      height: 22px;
+      background: #1e1e1c;
+      border-bottom-left-radius: 14px;
+      border-bottom-right-radius: 14px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 30;
+      flex-shrink: 0;
+    }
+
+    /* 上部共通ヘッダー */
+    .app-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 22px 4px;
+      z-index: 20;
+      flex-shrink: 0;
+    }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease;
+    }
+
+    .icon-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .screen {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      padding: 6px 20px 20px;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    /* ============================================================
+       SCREEN 1: タイトル＆役職割り振り画面（左側の不要なパーツを削除済）
+    ============================================================ */
+    .title-logo-area {
+      text-align: center;
+      margin-top: 4px;
+      margin-bottom: 6px;
+    }
+
+    .handwritten-title {
+      font-family: 'Caveat', cursive;
+      font-size: 46px;
+      font-weight: 700;
+      line-height: 0.95;
+      color: var(--ink);
+      transform: rotate(-4deg);
+      letter-spacing: 0.02em;
+    }
+
+    .handwritten-sub {
+      font-family: 'Caveat', cursive;
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-top: 2px;
+    }
+
+    .setup-stage {
+      position: relative;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .main-hand-wrapper {
+      width: 240px;
+      height: 255px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .finger-badge-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .finger-slot-btn {
+      position: absolute;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+      cursor: pointer;
+      transform: translate(-50%, -50%);
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .finger-slot-btn.selected-slot {
+      background: var(--pistachio);
+      transform: translate(-50%, -50%) scale(1.16);
+      box-shadow: 0 0 0 3px rgba(44, 43, 38, 0.22);
+    }
+
+    .slot-0 { left: 19%; top: 53%; }
+    .slot-1 { left: 34%; top: 23%; }
+    .slot-2 { left: 49%; top: 15%; }
+    .slot-3 { left: 64%; top: 22%; }
+    .slot-4 { left: 79%; top: 36%; }
+
+    .role-palette-area {
+      width: 100%;
+      text-align: center;
+      margin-top: 6px;
+    }
+
+    .role-palette-hint {
+      font-family: 'Yomogi', cursive;
+      font-size: 12px;
+      color: var(--ink-light);
+      margin-bottom: 6px;
+    }
+
+    .role-tray {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 8px 18px 12px;
+      position: relative;
+    }
+
+    .role-tray::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      left: 8%;
+      right: 8%;
+      height: 8px;
+      border-top: 2.2px solid var(--ink);
+      border-bottom: 1.8px solid var(--ink);
+      border-radius: 50%;
+      transform: rotate(-1.5deg);
+    }
+
+    .role-token {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      border: 2px solid transparent;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .role-token.active-token {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: var(--ink);
+      transform: translateY(-4px);
+    }
+
+    .start-action-bar {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .sketch-btn {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--ink);
+      background: #fff;
+      border: 2px solid var(--ink);
+      border-radius: 20px;
+      padding: 8px 18px;
+      cursor: pointer;
+      box-shadow: 2px 3px 0 var(--ink);
+      transition: all 0.15s ease;
+    }
+
+    .sketch-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0 0 0 var(--ink);
+    }
+
+    .sketch-btn.primary {
+      background: var(--pistachio);
+      padding: 8px 26px;
+    }
+
+    /* ============================================================
+       SCREEN 1.5: プレイ前の操作方法＆ルール確認画面
+    ============================================================ */
+    .briefing-card {
+      background: rgba(255, 255, 255, 0.84);
+      border: 2px solid var(--ink);
+      border-radius: 18px;
+      padding: 14px 16px;
+      margin-top: 4px;
+      box-shadow: 3px 4px 0 var(--ink);
+    }
+
+    .briefing-heading {
+      text-align: center;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      border-bottom: 1.5px dashed var(--ink);
+      padding-bottom: 6px;
+      margin-bottom: 10px;
+    }
+
+    .briefing-section-title {
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--pistachio);
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      border: 1.2px solid var(--ink);
+      margin-bottom: 6px;
+    }
+
+    .briefing-text {
+      font-size: 12px;
+      line-height: 1.7;
+      margin-bottom: 10px;
+    }
+
+    .briefing-role-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .briefing-role-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11.5px;
+      line-height: 1.45;
+      background: var(--cream-bg);
+      padding: 5px 8px;
+      border-radius: 8px;
+      border: 1px solid rgba(44, 43, 38, 0.25);
+    }
+
+    .my-loadout-preview {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+      border: 1.5px solid var(--ink);
+      border-radius: 10px;
+      padding: 6px 10px;
+      margin-top: 4px;
+    }
+
+    .loadout-chips {
+      display: flex;
+      gap: 6px;
+    }
+
+    .loadout-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 9px;
+      font-weight: 700;
+    }
+
+    /* ============================================================
+       SCREEN 2: バトル画面
+    ============================================================ */
+    .opponents-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .opponent-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px 8px;
+      border-radius: 14px;
+      border: 2px solid transparent;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+
+    /* 今このCPUのターンのとき */
+    .opponent-card.is-turn {
+      background: rgba(255, 255, 255, 0.85);
+      border-color: var(--ink);
+      box-shadow: 0 4px 10px rgba(44, 43, 38, 0.14);
+    }
+
+    /* 自分のターンで「この黒い手のプレイヤーだけが攻撃対象」のとき */
+    .opponent-card.is-targetable {
+      background: rgba(44, 43, 38, 0.08);
+      border-color: var(--ink);
+    }
+
+    .opponent-card.eliminated {
+      opacity: 0.3;
+    }
+
+    .turn-indicator-badge {
+      position: absolute;
+      top: -6px;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 6px;
+      background: var(--pistachio);
+      border: 1.2px solid var(--ink);
+      z-index: 5;
+      white-space: nowrap;
+    }
+
+    .target-indicator-badge {
+      position: absolute;
+      top: -6px;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 6px;
+      background: var(--ink);
+      color: #f6f7de;
+      z-index: 5;
+      white-space: nowrap;
+    }
+
+    .opponent-hand-box {
+      width: 82px;
+      height: 86px;
+      position: relative;
+    }
+
+    .opponent-tag {
+      font-family: 'Yomogi', cursive;
+      font-size: 11px;
+      background: #fff;
+      border: 1.5px solid var(--ink);
+      border-radius: 8px;
+      padding: 1px 8px;
+      margin-top: -6px;
+      z-index: 2;
+      transition: all 0.25s ease;
+    }
+
+    /* 黒くなっているターゲットプレイヤーのタグも黒反転 */
+    .opponent-card.is-dark-hand .opponent-tag {
+      background: #2c2b26;
+      color: #f6f7de;
+    }
+
+    /* CPUの指クリック判定＆赤い注目リング */
+    .cpu-finger-targets {
+      position: absolute;
+      inset: 0;
+    }
+
+    .cpu-finger-hit {
+      position: absolute;
+      width: 17px;
+      height: 31px;
+      border-radius: 9px;
+      transform: translate(-50%, -50%);
+      cursor: default;
+      border: 2px solid transparent;
+      transition: all 0.18s ease;
+    }
+
+    /* 黒い手のプレイヤーの生存指だけが触れる */
+    .is-targetable .cpu-finger-hit.alive {
+      cursor: pointer;
+      background: rgba(205, 211, 100, 0.35);
+      border-color: rgba(246, 247, 222, 0.85);
+      animation: targetPulse 1.2s infinite ease-in-out;
+    }
+
+    .is-targetable .cpu-finger-hit.alive:hover {
+      background: var(--danger-red-glow);
+      border-color: var(--danger-red);
+      transform: translate(-50%, -50%) scale(1.2);
+    }
+
+    /* 相手が迷っている・選択しようとしている指を赤く注目させる */
+    .cpu-finger-hit.red-focus,
+    .my-finger-badge.red-focus {
+      background: var(--danger-red-glow) !important;
+      border: 2.5px solid var(--danger-red) !important;
+      box-shadow: 0 0 12px var(--danger-red), 0 0 0 3px rgba(230, 57, 70, 0.35) !important;
+      transform: translate(-50%, -50%) scale(1.25) !important;
+      z-index: 15;
+    }
+
+    @keyframes targetPulse {
+      0%, 100% { opacity: 0.7; }
+      50% { opacity: 1; }
+    }
+
+    .cf-0 { left: 20%; top: 56%; }
+    .cf-1 { left: 34%; top: 28%; }
+    .cf-2 { left: 49%; top: 21%; }
+    .cf-3 { left: 64%; top: 27%; }
+    .cf-4 { left: 79%; top: 40%; }
+
+    /* 中央のターン＆フェーズ表示バナー */
+    .turn-banner-area {
+      text-align: center;
+      margin: 8px 0 4px;
+      min-height: 62px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .who-turn-chip {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 12px;
+      border-radius: 12px;
+      margin-bottom: 4px;
+      border: 1.5px solid var(--ink);
+      background: #fff;
+      transition: all 0.25s ease;
+    }
+
+    .who-turn-chip.my-turn-active {
+      background: var(--pistachio);
+    }
+
+    .who-turn-chip.cpu-turn-active {
+      background: #2c2b26;
+      color: #f6f7de;
+    }
+
+    .turn-banner-pill {
+      display: inline-block;
+      font-size: 13.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 4px 16px;
+      border-top: 1.5px solid var(--ink);
+      border-bottom: 1.5px solid var(--ink);
+      background: rgba(255, 255, 255, 0.55);
+    }
+
+    .round-subtext {
+      font-family: 'Yomogi', cursive;
+      font-size: 11px;
+      color: var(--ink-light);
+      margin-top: 3px;
+    }
+
+    /* 自分の手（中央下） */
+    .player-hand-stage {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      min-height: 205px;
+    }
+
+    .player-hand-container {
+      width: 205px;
+      height: 210px;
+      position: relative;
+      border-radius: 24px;
+      padding: 4px;
+      transition: all 0.25s ease;
+    }
+
+    .player-hand-container.my-turn-glow {
+      box-shadow: 0 0 0 2.5px var(--ink);
+      background: rgba(255, 255, 255, 0.38);
+    }
+
+    .my-finger-badge {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.94);
+      border: 1.8px solid var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      transition: all 0.2s ease;
+    }
+
+    .my-finger-badge.dead {
+      opacity: 0.22;
+      background: #ccc;
+    }
+
+    .my-finger-badge.shielded {
+      box-shadow: 0 0 0 2.5px #e88e88;
+    }
+
+    /* 下部ログ＆ステータス */
+    .battle-bottom-bar {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .sketch-log-box {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1.8px solid var(--ink);
+      border-radius: 12px;
+      padding: 7px 11px;
+      font-family: 'Yomogi', cursive;
+      font-size: 11.5px;
+      line-height: 1.45;
+      min-height: 58px;
+      max-height: 58px;
+      overflow-y: auto;
+    }
+
+    .me-signature {
+      font-family: 'Caveat', cursive;
+      font-size: 20px;
+      font-weight: 700;
+      border-bottom: 2px solid var(--ink);
+      padding: 0 6px;
+      transform: rotate(-4deg);
+    }
+
+    /* ============================================================
+       SCREEN 3: リザルト画面
+    ============================================================ */
+    .result-header {
+      text-align: center;
+      margin-top: 4px;
+    }
+
+    .result-headline {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+    }
+
+    .rank-crown-badge {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .rank-number {
+      font-family: 'Caveat', cursive;
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1;
+      border-bottom: 2px solid var(--ink);
+      padding: 0 10px;
+    }
+
+    .result-hand-area {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .ranking-list {
+      width: 100%;
+      max-width: 240px;
+      margin: 0 auto 8px;
+      font-family: 'Caveat', 'Yomogi', cursive;
+      font-size: 18px;
+    }
+
+    .ranking-item {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1.5px dashed rgba(44, 43, 38, 0.45);
+      padding: 3px 6px;
+    }
+
+    .result-footer {
+      display: flex;
+      justify-content: flex-end;
+      padding-top: 4px;
+    }
+
+    .end-handwritten-btn {
+      font-family: 'Caveat', cursive;
+      font-size: 26px;
+      font-weight: 700;
+      background: none;
+      border: none;
+      border-bottom: 2.5px solid var(--ink);
+      cursor: pointer;
+      padding: 0 8px;
+      color: var(--ink);
+      transition: transform 0.2s ease;
+    }
+
+    .end-handwritten-btn:hover {
+      transform: scale(1.08) rotate(-2deg);
+    }
+
+    /* ============================================================
+       MODAL: ルール説明（右上メモボタン）
+    ============================================================ */
+    .rule-modal {
+      position: absolute;
+      inset: 0;
+      background: rgba(246, 247, 222, 0.97);
+      z-index: 40;
+      padding: 28px 24px;
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .rule-modal.open {
+      display: flex;
+    }
+
+    .rule-title {
+      text-align: center;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      margin-bottom: 14px;
+    }
+
+    .rule-body {
+      font-size: 12.5px;
+      line-height: 1.85;
+    }
+
+    .rule-roles-box {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border: 1.8px dashed var(--ink);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.65);
+    }
+
+    .rule-role-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      font-size: 12.5px;
+    }
+
+    .rule-role-row:last-child {
+      margin-bottom: 0;
+    }
+
+    /* イベント演出トースト */
+    .event-flash {
+      position: absolute;
+      top: 44%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.9);
+      background: #fff;
+      border: 2.5px solid var(--ink);
+      border-radius: 18px;
+      padding: 12px 20px;
+      font-weight: 700;
+      font-size: 13.5px;
+      text-align: center;
+      box-shadow: 4px 5px 0 var(--ink);
+      z-index: 35;
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+      white-space: nowrap;
+    }
+
+    .event-flash.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="phone-chassis">
+    <div class="phone-notch"></div>
+
+    <!-- 共通トップバー -->
+    <div class="app-topbar">
+      <button class="icon-btn" id="homeCrownBtn" title="タイトルへ戻る">
+        <svg width="24" height="20" viewBox="0 0 28 22" fill="none">
+          <path d="M3 18L1 5L8.5 11L14 3L19.5 11L27 5L25 18H3Z" fill="#2c2b26" stroke="#2c2b26" stroke-width="1.5" stroke-linejoin="round"/>
+          <circle cx="1" cy="3.5" r="1.5" fill="#2c2b26"/>
+          <circle cx="14" cy="1.5" r="1.5" fill="#2c2b26"/>
+          <circle cx="27" cy="3.5" r="1.5" fill="#2c2b26"/>
+        </svg>
+      </button>
+
+      <button class="icon-btn" id="openRuleBtn" title="ルールを確認">
+        <svg width="22" height="24" viewBox="0 0 24 26" fill="none">
+          <rect x="3" y="2" width="18" height="22" rx="2" stroke="#2c2b26" stroke-width="1.8" fill="#fff"/>
+          <line x1="7" y1="8" x2="17" y2="8" stroke="#2c2b26" stroke-width="1.6"/>
+          <line x1="7" y1="13" x2="17" y2="13" stroke="#2c2b26" stroke-width="1.6"/>
+          <line x1="7" y1="18" x2="13" y2="18" stroke="#2c2b26" stroke-width="1.6"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- イベント演出ポップアップ -->
+    <div class="event-flash" id="eventFlash"></div>
+
+    <!-- ============================================================
+         SCREEN 1: タイトル＆役職割り振り画面
+    ============================================================ -->
+    <section class="screen active" id="screenSetup">
+      <div class="title-logo-area">
+        <div class="handwritten-title">Five Fingers</div>
+        <div class="handwritten-sub">- King -</div>
+      </div>
+
+      <div class="setup-stage">
+        <!-- メインの手のイラスト＋5本の指スロット（左のSTARTパーツは削除済） -->
+        <div class="main-hand-wrapper">
+          <div id="setupHandSvg"></div>
+          <div class="finger-badge-overlay" id="setupSlots"></div>
+        </div>
+
+        <!-- 下部の役職アイコン選択トレイ -->
+        <div class="role-palette-area">
+          <div class="role-palette-hint">自分の指をタップして役職を配置</div>
+          <div class="role-tray" id="roleTray"></div>
+
+          <div class="start-action-bar">
+            <button class="sketch-btn" id="shuffleSetupBtn">シャッフル</button>
+            <button class="sketch-btn primary" id="toBriefingBtn">次へ（ルール確認）</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 1.5: プレイ前の操作方法＆ルール説明画面
+    ============================================================ -->
+    <section class="screen" id="screenBriefing">
+      <div class="briefing-card">
+        <div class="briefing-heading">- 操作方法 ＆ ルール -</div>
+
+        <div class="briefing-section-title">1. 操作方法</div>
+        <p class="briefing-text">
+          あなたのターンになると、<strong>黒く表示された相手プレイヤーの指</strong>だけがタップできるようになります。<br>
+          相手の指を1本選んで攻撃し、<strong>最後まで自分の「王」を守り切れば勝利</strong>です！（1周ごとに役職の場所がシャッフルされます）
+        </p>
+
+        <div class="briefing-section-title">2. 5本の指の役職</div>
+        <div class="briefing-role-list">
+          <div class="briefing-role-item">
+            <span id="briefIconKing"></span>
+            <span><strong>王</strong>：指されると即座に全滅（敗北）する。</span>
+          </div>
+          <div class="briefing-role-item">
+            <span id="briefIconPrincess"></span>
+            <span><strong>姫</strong>：指されると争いをやめ、王だけが残される。</span>
+          </div>
+          <div class="briefing-role-item">
+            <span id="briefIconSoldier"></span>
+            <span><strong>兵</strong>：1回だけ攻撃に耐える。</span>
+          </div>
+          <div class="briefing-role-item">
+            <span id="briefIconChild"></span>
+            <span><strong>子×2</strong>：特に何もない（1回で脱落）。</span>
+          </div>
+        </div>
+
+        <div class="briefing-section-title">3. あなたの現在の配置</div>
+        <div class="my-loadout-preview">
+          <span style="font-size: 11px; font-weight: 700;">親指 → 小指：</span>
+          <div class="loadout-chips" id="briefingLoadoutChips"></div>
+        </div>
+      </div>
+
+      <div class="start-action-bar" style="margin-top: 14px;">
+        <button class="sketch-btn" id="backToSetupBtn">配置を直す</button>
+        <button class="sketch-btn primary" id="startGameBtn">対戦スタート！</button>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 2: バトル画面
+    ============================================================ -->
+    <section class="screen" id="screenBattle">
+      <!-- 上部：ライバル3人の手 -->
+      <div class="opponents-row" id="opponentsRow"></div>
+
+      <!-- 中央：誰のターンか＋フェーズ表示 -->
+      <div class="turn-banner-area">
+        <div class="who-turn-chip" id="whoTurnChip">YOUR TURN（あなたの番）</div>
+        <div class="turn-banner-pill" id="turnBannerText">指を選択</div>
+        <div class="round-subtext" id="roundSubtext">1周目 — 黒い手のプレイヤーの指をタップ</div>
+      </div>
+
+      <!-- 中央下：自分の手 -->
+      <div class="player-hand-stage">
+        <div class="player-hand-container" id="playerHandContainer"></div>
+      </div>
+
+      <!-- 最下部：バトルログ＆サイン -->
+      <div class="battle-bottom-bar">
+        <div class="sketch-log-box" id="battleLogBox"></div>
+        <div class="me-signature">me</div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 3: リザルト画面
+    ============================================================ -->
+    <section class="screen" id="screenResult">
+      <div class="result-header">
+        <div class="result-headline" id="resultHeadline">YOU WIN</div>
+        <div class="rank-crown-badge">
+          <svg width="22" height="16" viewBox="0 0 28 22" fill="none">
+            <path d="M3 18L1 5L8.5 11L14 3L19.5 11L27 5L25 18H3Z" fill="#2c2b26"/>
+          </svg>
+          <div class="rank-number" id="resultRankNum">1</div>
+        </div>
+      </div>
+
+      <div class="result-hand-area" id="resultHandArea"></div>
+
+      <div class="ranking-list" id="rankingList"></div>
+
+      <div class="result-footer">
+        <button class="end-handwritten-btn" id="endToTitleBtn">END</button>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         MODAL: いつでも開けるルール説明
+    ============================================================ -->
+    <div class="rule-modal" id="ruleModal">
+      <div>
+        <div class="rule-title">- ルール -</div>
+        <div class="rule-body">
+          ゲームが始まる前に相手にバレないよう、<br>
+          自分の指に以下の役職を割り振る。<br>
+          プレイヤーは攻撃する相手と指を指定する。<br>
+          <strong>最後まで王を守り切ったプレイヤーが勝利!!</strong><br>
+          （ゲーム開始後は一周するごとに場所を入れ替える）
+
+          <div class="rule-roles-box">
+            <div class="rule-role-row">
+              <span id="ruleIconKing"></span>
+              <span><strong>王</strong> …… 王が指されると全滅する。</span>
+            </div>
+            <div class="rule-role-row">
+              <span id="ruleIconPrincess"></span>
+              <span><strong>姫</strong> …… 姫が指されると争いをやめ、王だけが残される。</span>
+            </div>
+            <div class="rule-role-row">
+              <span id="ruleIconSoldier"></span>
+              <span><strong>兵</strong> …… 1回だけ攻撃に耐える。</span>
+            </div>
+            <div class="rule-role-row">
+              <span id="ruleIconChild"></span>
+              <span><strong>子×2</strong> …… 特に何もない。</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align: center;">
+        <button class="sketch-btn primary" id="closeRuleBtn">とじる</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * 1. アイコンSVG定義
+     */
+    const ROLE_META = {
+      king: {
+        name: '王',
+        svg: (size = 18) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none">
+          <path d="M3 18L1.5 7L8 12L12 5L16 12L22.5 7L21 18H3Z" fill="#2c2b26" stroke="#2c2b26" stroke-width="1.4" stroke-linejoin="round"/>
+          <circle cx="1.5" cy="5.5" r="1.3" fill="#2c2b26"/>
+          <circle cx="12" cy="3.5" r="1.3" fill="#2c2b26"/>
+          <circle cx="22.5" cy="5.5" r="1.3" fill="#2c2b26"/>
+        </svg>`
+      },
+      princess: {
+        name: '姫',
+        svg: (size = 18) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none">
+          <path d="M12 20.5C12 20.5 3.5 14.8 3.5 8.8C3.5 6.1 5.6 4 8.2 4C9.8 4 11.2 4.8 12 6C12.8 4.8 14.2 4 15.8 4C18.4 4 20.5 6.1 20.5 8.8C20.5 14.8 12 20.5 12 20.5Z" fill="#2c2b26"/>
+        </svg>`
+      },
+      soldier: {
+        name: '兵',
+        svg: (size = 18) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none">
+          <path d="M12 3L19.5 12L12 21L4.5 12L12 3Z" fill="#2c2b26"/>
+        </svg>`
+      },
+      child: {
+        name: '子',
+        svg: (size = 18) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="4.2" fill="#2c2b26"/>
+        </svg>`
+      }
+    };
+
+    /**
+     * 2. 手のイラストSVG描画
+     */
+    function renderHandIllustration(options = {}) {
+      const {
+        uid = 'main',
+        fingers = [
+          { role: 'child', alive: true },
+          { role: 'king', alive: true },
+          { role: 'princess', alive: true },
+          { role: 'soldier', alive: true },
+          { role: 'child', alive: true }
+        ],
+        styleType = 'gradient' // 'gradient' | 'outline' | 'dark'
+      } = options;
+
+      const fingerShapes = [
+        { d: 'M62 146 L35 116 C27 107 39 95 49 104 L76 130 Z', foldedD: 'M65 152 L48 136 C42 130 50 122 57 128 L74 143 Z' },
+        { d: 'M72 126 L66 56 C65 44 82 43 84 55 L90 122 Z', foldedD: 'M72 130 L70 105 C69 96 84 95 85 104 L88 128 Z' },
+        { d: 'M92 120 L93 38 C93 26 111 26 111 38 L110 120 Z', foldedD: 'M92 125 L92 98 C92 89 109 89 109 98 L109 125 Z' },
+        { d: 'M113 122 L122 52 C124 40 141 42 139 54 L130 125 Z', foldedD: 'M113 127 L116 102 C118 93 133 95 132 104 L129 129 Z' },
+        { d: 'M133 132 L149 82 C152 71 168 76 164 87 L147 139 Z', foldedD: 'M133 136 L140 116 C143 107 157 111 154 120 L146 142 Z' }
+      ];
+
+      let fillAttr = `url(#handGrad-${uid})`;
+      let strokeAttr = 'none';
+      if (styleType === 'outline') {
+        fillAttr = '#fcfdf0';
+        strokeAttr = '#2c2b26';
+      } else if (styleType === 'dark') {
+        fillAttr = '#2c2b26';
+        strokeAttr = '#2c2b26';
+      }
+
+      const fingersMarkup = fingers.map((f, idx) => {
+        const shape = fingerShapes[idx];
+        const pathD = f.alive ? shape.d : shape.foldedD;
+        const opacity = f.alive ? 1 : 0.35;
+        return `<path d="${pathD}" fill="${fillAttr}" stroke="${strokeAttr}" stroke-width="2.2" stroke-linejoin="round" opacity="${opacity}" />`;
+      }).join('');
+
+      return `
+        <svg viewBox="0 0 200 215" width="100%" height="100%" style="overflow: visible;">
+          <defs>
+            <linearGradient id="handGrad-${uid}" x1="0%" y1="0%" x2="15%" y2="100%">
+              <stop offset="0%" stop-color="#f3d86b" />
+              <stop offset="55%" stop-color="#efb378" />
+              <stop offset="100%" stop-color="#e58386" />
+            </linearGradient>
+          </defs>
+          ${fingersMarkup}
+          <path d="M62 138 C62 122 145 122 148 140 L145 176 C143 190 132 198 122 200 L122 212 L84 212 L84 200 C72 197 62 186 62 170 Z"
+                fill="${fillAttr}" stroke="${strokeAttr}" stroke-width="2.2" stroke-linejoin="round" />
+        </svg>
+      `;
+    }
+
+    /**
+     * 3. ゲーム状態管理
+     */
+    const INITIAL_ROLES = ['child', 'king', 'princess', 'soldier', 'child'];
+    let setupRoles = [...INITIAL_ROLES];
+    let selectedSlotIdx = 1;
+
+    let gameState = {
+      players: [],
+      turnOrder: [0, 1, 2, 3],
+      turnPointer: 0,
+      round: 1,
+      isPlayerTurn: false,
+      lockedTargetId: null, // 自分のターンで黒くなっているターゲットCPUのID
+      focusedTarget: null,  // { playerId, fingerIdx } 赤く注目させている指
+      thinkingText: '',     // CPUが迷っているときのテキスト
+      gameOver: false,
+      eliminationOrder: []
+    };
+
+    let activeCpuTimers = [];
+    function clearCpuTimers() {
+      activeCpuTimers.forEach(t => clearTimeout(t));
+      activeCpuTimers = [];
+    }
+
+    /**
+     * 4. セットアップ画面＆プレイ前ルール確認画面
+     */
+    function renderSetupScreen() {
+      const handContainer = document.getElementById('setupHandSvg');
+      handContainer.innerHTML = renderHandIllustration({
+        uid: 'setup',
+        fingers: setupRoles.map(r => ({ role: r, alive: true })),
+        styleType: 'gradient'
+      });
+
+      const slotsEl = document.getElementById('setupSlots');
+      slotsEl.innerHTML = '';
+      setupRoles.forEach((role, idx) => {
+        const btn = document.createElement('button');
+        btn.className = `finger-slot-btn slot-${idx}` + (selectedSlotIdx === idx ? ' selected-slot' : '');
+        btn.innerHTML = ROLE_META[role].svg(17);
+        btn.addEventListener('click', () => {
+          if (selectedSlotIdx === idx) return;
+          const temp = setupRoles[selectedSlotIdx];
+          setupRoles[selectedSlotIdx] = setupRoles[idx];
+          setupRoles[idx] = temp;
+          selectedSlotIdx = idx;
+          renderSetupScreen();
+        });
+        slotsEl.appendChild(btn);
+      });
+
+      const trayEl = document.getElementById('roleTray');
+      trayEl.innerHTML = '';
+      const displayOrder = ['child', 'king', 'princess', 'soldier', 'child'];
+      displayOrder.forEach(roleKey => {
+        const token = document.createElement('button');
+        const currentRoleOnSelected = setupRoles[selectedSlotIdx];
+        token.className = 'role-token' + (currentRoleOnSelected === roleKey ? ' active-token' : '');
+        token.innerHTML = ROLE_META[roleKey].svg(22);
+        token.addEventListener('click', () => {
+          const targetIdx = setupRoles.findIndex((r, idx) => r === roleKey && idx !== selectedSlotIdx);
+          if (targetIdx !== -1) {
+            setupRoles[targetIdx] = setupRoles[selectedSlotIdx];
+            setupRoles[selectedSlotIdx] = roleKey;
+          }
+          renderSetupScreen();
+        });
+        trayEl.appendChild(token);
+      });
+    }
+
+    document.getElementById('shuffleSetupBtn').addEventListener('click', () => {
+      for (let i = setupRoles.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [setupRoles[i], setupRoles[j]] = [setupRoles[j], setupRoles[i]];
+      }
+      renderSetupScreen();
+    });
+
+    // 「次へ（ルール確認）」ボタンで操作方法＆ルール説明画面へ移動
+    document.getElementById('toBriefingBtn').addEventListener('click', () => {
+      const chipsEl = document.getElementById('briefingLoadoutChips');
+      chipsEl.innerHTML = '';
+      setupRoles.forEach(roleKey => {
+        const chip = document.createElement('div');
+        chip.className = 'loadout-chip';
+        chip.innerHTML = `${ROLE_META[roleKey].svg(16)}<span>${ROLE_META[roleKey].name}</span>`;
+        chipsEl.appendChild(chip);
+      });
+      switchScreen('screenBriefing');
+    });
+
+    document.getElementById('backToSetupBtn').addEventListener('click', () => {
+      renderSetupScreen();
+      switchScreen('screenSetup');
+    });
+
+    /**
+     * 5. バトル開始＆ターン進行ロジック
+     */
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function createPlayer(id, name, roles, isHuman = false) {
+      return {
+        id,
+        name,
+        isHuman,
+        alive: true,
+        fingers: roles.map(role => ({
+          role,
+          alive: true,
+          shieldBroken: false
+        }))
+      };
+    }
+
+    function startGame() {
+      clearCpuTimers();
+      gameState = {
+        players: [
+          createPlayer(0, 'me', [...setupRoles], true),
+          createPlayer(1, 'Player 2', shuffleArray(INITIAL_ROLES), false),
+          createPlayer(2, 'Player 3', shuffleArray(INITIAL_ROLES), false),
+          createPlayer(3, 'Player 4', shuffleArray(INITIAL_ROLES), false)
+        ],
+        turnOrder: [0, 1, 2, 3],
+        turnPointer: 0,
+        round: 1,
+        isPlayerTurn: true,
+        lockedTargetId: null,
+        focusedTarget: null,
+        thinkingText: '',
+        gameOver: false,
+        eliminationOrder: []
+      };
+
+      switchScreen('screenBattle');
+      document.getElementById('battleLogBox').innerHTML = '';
+      addLog('ゲーム開始！黒く表示された相手の指を選択してください。');
+      beginCurrentTurn();
+    }
+
+    document.getElementById('startGameBtn').addEventListener('click', startGame);
+
+    function addLog(text) {
+      const box = document.getElementById('battleLogBox');
+      const line = document.createElement('div');
+      line.textContent = `・${text}`;
+      box.appendChild(line);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function showFlash(msg) {
+      const el = document.getElementById('eventFlash');
+      el.textContent = msg;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 1200);
+    }
+
+    function getAlivePlayers() {
+      return gameState.players.filter(p => p.alive);
+    }
+
+    function beginCurrentTurn() {
+      if (gameState.gameOver) return;
+
+      const aliveList = getAlivePlayers();
+      if (aliveList.length <= 1) {
+        finishGame();
+        return;
+      }
+
+      let safety = 0;
+      while (!gameState.players[gameState.turnOrder[gameState.turnPointer]].alive && safety < 10) {
+        advancePointer();
+        safety++;
+      }
+
+      const activePlayer = gameState.players[gameState.turnOrder[gameState.turnPointer]];
+      gameState.isPlayerTurn = activePlayer.isHuman;
+      gameState.focusedTarget = null;
+      gameState.thinkingText = '';
+
+      if (activePlayer.isHuman) {
+        // 自分のターン：生存しているライバルの中から1人を「黒く（ターゲット指定）」する
+        const aliveCpus = gameState.players.slice(1).filter(p => p.alive);
+        const chosenCpu = aliveCpus[Math.floor(Math.random() * aliveCpus.length)];
+        gameState.lockedTargetId = chosenCpu ? chosenCpu.id : null;
+        renderBattleScreen();
+      } else {
+        // CPUのターン：ターゲットロックを解除し、CPUが迷うそぶりを見せる
+        gameState.lockedTargetId = null;
+        renderBattleScreen();
+        simulateCpuHesitationAndAttack(activePlayer);
+      }
+    }
+
+    function advancePointer() {
+      gameState.turnPointer++;
+      if (gameState.turnPointer >= gameState.turnOrder.length) {
+        gameState.turnPointer = 0;
+        gameState.round++;
+        shuffleAllAliveRoles();
+      }
+    }
+
+    function shuffleAllAliveRoles() {
+      if (gameState.gameOver) return;
+      gameState.players.forEach(p => {
+        if (!p.alive) return;
+        const aliveFingers = p.fingers.filter(f => f.alive);
+        if (aliveFingers.length > 1) {
+          const states = shuffleArray(aliveFingers.map(f => ({ role: f.role, shieldBroken: f.shieldBroken })));
+          aliveFingers.forEach((f, i) => {
+            f.role = states[i].role;
+            f.shieldBroken = states[i].shieldBroken;
+          });
+        }
+      });
+      addLog(`【${gameState.round}周目】生存している指の役職が入れ替わりました！`);
+      showFlash(`${gameState.round}周目：役職シャッフル！`);
+    }
+
+    /**
+     * CPUが「どの指にしようか迷うそぶり」を見せ、狙った指を赤く注目させてから攻撃する演出
+     */
+    function simulateCpuHesitationAndAttack(cpuPlayer) {
+      if (gameState.gameOver || !cpuPlayer.alive) return;
+
+      const possibleTargets = gameState.players.filter(p => p.alive && p.id !== cpuPlayer.id);
+      if (possibleTargets.length === 0) return;
+
+      // 最終的に攻撃する相手と指を決定
+      const finalTargetPlayer = possibleTargets[Math.floor(Math.random() * possibleTargets.length)];
+      const finalAliveIndices = finalTargetPlayer.fingers
+        .map((f, idx) => (f.alive ? idx : -1))
+        .filter(idx => idx !== -1);
+      const finalFingerIdx = finalAliveIndices[Math.floor(Math.random() * finalAliveIndices.length)];
+
+      // 迷う候補リスト（他のプレイヤーや自分の指も含めて2〜3回視線が揺れる）
+      const hesitationSteps = [];
+      const glanceCount = 2 + Math.floor(Math.random() * 2); // 2〜3回迷う
+
+      for (let s = 0; s < glanceCount; s++) {
+        const randP = possibleTargets[Math.floor(Math.random() * possibleTargets.length)];
+        const randFList = randP.fingers.map((f, idx) => (f.alive ? idx : -1)).filter(idx => idx !== -1);
+        const randF = randFList[Math.floor(Math.random() * randFList.length)];
+        hesitationSteps.push({
+          playerId: randP.id,
+          fingerIdx: randF,
+          text: s === 0 ? `${cpuPlayer.name} が様子をうかがっている…` : `${cpuPlayer.name} がどの指にするか迷っている…`
+        });
+      }
+
+      // ステップごとに赤い注目枠を移動させる
+      hesitationSteps.forEach((step, idx) => {
+        const timer = setTimeout(() => {
+          if (gameState.gameOver) return;
+          gameState.focusedTarget = { playerId: step.playerId, fingerIdx: step.fingerIdx };
+          gameState.thinkingText = step.text;
+          renderBattleScreen();
+        }, 550 * (idx + 1));
+        activeCpuTimers.push(timer);
+      });
+
+      // 最終ロックオン（赤い枠で決定を予告）
+      const lockTime = 550 * (hesitationSteps.length + 1);
+      const lockTimer = setTimeout(() => {
+        if (gameState.gameOver) return;
+        gameState.focusedTarget = { playerId: finalTargetPlayer.id, fingerIdx: finalFingerIdx };
+        gameState.thinkingText = `${cpuPlayer.name} が ${finalTargetPlayer.name} に狙いを定めた！`;
+        renderBattleScreen();
+      }, lockTime);
+      activeCpuTimers.push(lockTimer);
+
+      // 攻撃実行
+      const execTimer = setTimeout(() => {
+        if (gameState.gameOver) return;
+        resolveAttack(cpuPlayer, finalTargetPlayer, finalFingerIdx);
+      }, lockTime + 650);
+      activeCpuTimers.push(execTimer);
+    }
+
+    function resolveAttack(attacker, defender, fingerIdx) {
+      const finger = defender.fingers[fingerIdx];
+      if (!finger || !finger.alive) return;
+
+      const fingerNames = ['親指', '人差し指', '中指', '薬指', '小指'];
+      const fLabel = fingerNames[fingerIdx];
+
+      if (finger.role === 'king') {
+        defender.fingers.forEach(f => (f.alive = false));
+        defender.alive = false;
+        gameState.eliminationOrder.push(defender);
+        addLog(`${attacker.name} が ${defender.name} の${fLabel}を指名 → 【王】的中！${defender.name} 全滅！`);
+        showFlash(`👑 ${defender.name} の王が撃破された！`);
+      } else if (finger.role === 'princess') {
+        defender.fingers.forEach(f => {
+          if (f.role !== 'king') f.alive = false;
+        });
+        addLog(`${attacker.name} が ${defender.name} の${fLabel}を指名 → 【姫】発動！王だけが残された！`);
+        showFlash(`♥ 姫の力で争いをやめ、王だけが残された！`);
+      } else if (finger.role === 'soldier') {
+        if (!finger.shieldBroken) {
+          finger.shieldBroken = true;
+          addLog(`${attacker.name} が ${defender.name} の${fLabel}を指名 → 【兵】が攻撃を1回防いだ！`);
+          showFlash(`◆ 兵が攻撃を防いだ！`);
+        } else {
+          finger.alive = false;
+          addLog(`${attacker.name} が ${defender.name} の${fLabel}を指名 → 【兵】が力尽きた！`);
+        }
+      } else {
+        finger.alive = false;
+        addLog(`${attacker.name} が ${defender.name} の${fLabel}を指名 → 【子】を撃破！`);
+      }
+
+      gameState.focusedTarget = null;
+      gameState.thinkingText = '';
+      renderBattleScreen();
+
+      const remaining = getAlivePlayers();
+      if (remaining.length <= 1) {
+        const endTimer = setTimeout(finishGame, 1100);
+        activeCpuTimers.push(endTimer);
+        return;
+      }
+
+      if (!gameState.players[0].alive) {
+        while (getAlivePlayers().length > 1) {
+          const alives = getAlivePlayers();
+          const loser = alives[Math.floor(Math.random() * alives.length)];
+          loser.alive = false;
+          gameState.eliminationOrder.push(loser);
+        }
+        const loseTimer = setTimeout(finishGame, 1200);
+        activeCpuTimers.push(loseTimer);
+        return;
+      }
+
+      advancePointer();
+      const nextTimer = setTimeout(beginCurrentTurn, 650);
+      activeCpuTimers.push(nextTimer);
+    }
+
+    /**
+     * 6. バトル画面のレンダリング
+     */
+    function renderBattleScreen() {
+      const activePlayer = gameState.players[gameState.turnOrder[gameState.turnPointer]];
+      const whoChip = document.getElementById('whoTurnChip');
+      const bannerEl = document.getElementById('turnBannerText');
+      const subEl = document.getElementById('roundSubtext');
+
+      if (gameState.isPlayerTurn) {
+        const targetCpu = gameState.players.find(p => p.id === gameState.lockedTargetId);
+        whoChip.textContent = '★ YOUR TURN（あなたのターン）';
+        whoChip.className = 'who-turn-chip my-turn-active';
+        bannerEl.textContent = '指を選択';
+        subEl.textContent = `${gameState.round}周目 — 黒い手の ${targetCpu ? targetCpu.name : '相手'} の指をタップ`;
+      } else {
+        whoChip.textContent = `${activePlayer.name} のターン`;
+        whoChip.className = 'who-turn-chip cpu-turn-active';
+        bannerEl.textContent = '他のプレイヤーが操作中';
+        subEl.textContent = gameState.thinkingText || `${gameState.round}周目 — ${activePlayer.name} が狙いを考えています…`;
+      }
+
+      // 上部のCPU3人を描画
+      const oppRow = document.getElementById('opponentsRow');
+      oppRow.innerHTML = '';
+
+      gameState.players.slice(1).forEach(cpu => {
+        const card = document.createElement('div');
+        const isCurrentCpuTurn = activePlayer && activePlayer.id === cpu.id;
+        // 自分のターンで「このCPUが黒い手（攻撃対象）」かどうか
+        const isBlackTarget = gameState.isPlayerTurn && cpu.alive && gameState.lockedTargetId === cpu.id;
+
+        card.className = `opponent-card`
+          + (isCurrentCpuTurn ? ' is-turn' : '')
+          + (isBlackTarget ? ' is-targetable is-dark-hand' : '')
+          + (!cpu.alive ? ' eliminated' : '');
+
+        // 今誰のターンか／誰がターゲットかを示す上部ラベル
+        if (isCurrentCpuTurn && cpu.alive) {
+          const turnBadge = document.createElement('div');
+          turnBadge.className = 'turn-indicator-badge';
+          turnBadge.textContent = 'NOW TURN';
+          card.appendChild(turnBadge);
+        } else if (isBlackTarget) {
+          const targetBadge = document.createElement('div');
+          targetBadge.className = 'target-indicator-badge';
+          targetBadge.textContent = 'TARGET';
+          card.appendChild(targetBadge);
+        }
+
+        const handBox = document.createElement('div');
+        handBox.className = 'opponent-hand-box';
+        handBox.innerHTML = renderHandIllustration({
+          uid: `cpu-${cpu.id}`,
+          fingers: cpu.fingers,
+          // 黒くなっているプレイヤーだけ 'dark'、それ以外は 'outline'
+          styleType: isBlackTarget ? 'dark' : 'outline'
+        });
+
+        // 指のタップ判定＆赤い注目リング
+        const hitLayer = document.createElement('div');
+        hitLayer.className = 'cpu-finger-targets';
+        cpu.fingers.forEach((f, fIdx) => {
+          const hit = document.createElement('div');
+          const isRedFocused = gameState.focusedTarget
+            && gameState.focusedTarget.playerId === cpu.id
+            && gameState.focusedTarget.fingerIdx === fIdx;
+
+          hit.className = `cpu-finger-hit cf-${fIdx}`
+            + (f.alive ? ' alive' : '')
+            + (isRedFocused ? ' red-focus' : '');
+
+          // 黒くなっているプレイヤーの生存指だけが触れる
+          if (isBlackTarget && f.alive) {
+            hit.addEventListener('click', () => {
+              gameState.isPlayerTurn = false;
+              gameState.focusedTarget = { playerId: cpu.id, fingerIdx: fIdx };
+              renderBattleScreen();
+              const atkTimer = setTimeout(() => {
+                resolveAttack(gameState.players[0], cpu, fIdx);
+              }, 360);
+              activeCpuTimers.push(atkTimer);
+            });
+          }
+          hitLayer.appendChild(hit);
+        });
+        handBox.appendChild(hitLayer);
+
+        const tag = document.createElement('div');
+        tag.className = 'opponent-tag';
+        tag.textContent = cpu.alive ? cpu.name : 'OUT';
+
+        card.appendChild(handBox);
+        card.appendChild(tag);
+        oppRow.appendChild(card);
+      });
+
+      // 中央下の自分の手を描画（CPUが自分の指に迷っているときは赤く注目枠を表示）
+      const me = gameState.players[0];
+      const myContainer = document.getElementById('playerHandContainer');
+      myContainer.className = 'player-hand-container' + (gameState.isPlayerTurn ? ' my-turn-glow' : '');
+      myContainer.innerHTML = renderHandIllustration({
+        uid: 'battle-me',
+        fingers: me.fingers,
+        styleType: 'gradient'
+      });
+
+      const slotClasses = ['slot-0', 'slot-1', 'slot-2', 'slot-3', 'slot-4'];
+      me.fingers.forEach((f, idx) => {
+        const isMyFingerRedFocused = gameState.focusedTarget
+          && gameState.focusedTarget.playerId === 0
+          && gameState.focusedTarget.fingerIdx === idx;
+
+        const badge = document.createElement('div');
+        badge.className = `my-finger-badge ${slotClasses[idx]}`
+          + (!f.alive ? ' dead' : '')
+          + (f.shieldBroken ? ' shielded' : '')
+          + (isMyFingerRedFocused ? ' red-focus' : '');
+        badge.innerHTML = ROLE_META[f.role].svg(14);
+        myContainer.appendChild(badge);
+      });
+    }
+
+    /**
+     * 7. リザルト画面
+     */
+    function finishGame() {
+      clearCpuTimers();
+      gameState.gameOver = true;
+      const survivor = getAlivePlayers()[0];
+      const fullRanking = [];
+      if (survivor) fullRanking.push(survivor);
+      for (let i = gameState.eliminationOrder.length - 1; i >= 0; i--) {
+        fullRanking.push(gameState.eliminationOrder[i]);
+      }
+
+      const myRank = fullRanking.findIndex(p => p.id === 0) + 1;
+      document.getElementById('resultHeadline').textContent = myRank === 1 ? 'YOU WIN' : 'GAME OVER';
+      document.getElementById('resultRankNum').textContent = String(myRank);
+
+      const me = gameState.players[0];
+      const resHand = document.getElementById('resultHandArea');
+      resHand.innerHTML = `
+        <div style="width: 210px; height: 215px; position: relative;">
+          ${renderHandIllustration({ uid: 'result-me', fingers: me.fingers, styleType: 'gradient' })}
+        </div>
+      `;
+
+      const listEl = document.getElementById('rankingList');
+      listEl.innerHTML = '';
+      fullRanking.slice(1).forEach((p, idx) => {
+        const row = document.createElement('div');
+        row.className = 'ranking-item';
+        row.innerHTML = `<span>${idx + 2}. ${p.name}</span><span>${p.id === 0 ? 'me' : ''}</span>`;
+        listEl.appendChild(row);
+      });
+
+      switchScreen('screenResult');
+    }
+
+    /**
+     * 8. 画面切り替え＆モーダル制御
+     */
+    function switchScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    document.getElementById('homeCrownBtn').addEventListener('click', () => {
+      clearCpuTimers();
+      renderSetupScreen();
+      switchScreen('screenSetup');
+    });
+
+    document.getElementById('endToTitleBtn').addEventListener('click', () => {
+      clearCpuTimers();
+      renderSetupScreen();
+      switchScreen('screenSetup');
+    });
+
+    const ruleModal = document.getElementById('ruleModal');
+    document.getElementById('openRuleBtn').addEventListener('click', () => ruleModal.classList.add('open'));
+    document.getElementById('closeRuleBtn').addEventListener('click', () => ruleModal.classList.remove('open'));
+
+    // モーダルとブリーフィング画面のアイコン流し込み
+    ['ruleIconKing', 'briefIconKing'].forEach(id => {
+      document.getElementById(id).innerHTML = ROLE_META.king.svg(16);
+    });
+    ['ruleIconPrincess', 'briefIconPrincess'].forEach(id => {
+      document.getElementById(id).innerHTML = ROLE_META.princess.svg(16);
+    });
+    ['ruleIconSoldier', 'briefIconSoldier'].forEach(id => {
+      document.getElementById(id).innerHTML = ROLE_META.soldier.svg(16);
+    });
+    ['ruleIconChild', 'briefIconChild'].forEach(id => {
+      document.getElementById(id).innerHTML = ROLE_META.child.svg(16);
+    });
+
+    // 初期描画
+    renderSetupScreen();
+  </script>
+</body>
+</html>
